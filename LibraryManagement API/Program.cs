@@ -1,4 +1,6 @@
 using LibraryManagement_API.Models;
+using LibraryManagement_API.RepositoryPattern.IRepository;
+using LibraryManagement_API.RepositoryPattern.IRepositoryImplementation;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<MyDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultSQLConnection")));
 
-// Register the generic repository with a transient or scoped lifetime
+// Register the Repository Pattern
+builder.Services.AddScoped<IRepositoryStream, IRepositoryStreamImplementation>();
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
