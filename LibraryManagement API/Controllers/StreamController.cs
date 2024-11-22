@@ -35,11 +35,20 @@ namespace LibraryManagement_API.Controllers
         [HttpPost(Name = "CreateStreamName")]
         public IActionResult CreateStreamName([FromBody]CreateStreamDTO Incomming_Request)
         {
-            string baseUrl = $"{Request.Scheme}://{Request.Host}";
 
-            var results = _repository.Create_Stream(baseUrl, Incomming_Request);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            else
+            {
+                string baseUrl = $"{Request.Scheme}://{Request.Host}";
 
-            return Ok(results);
+                var results = _repository.Create_Stream(baseUrl, Incomming_Request);
+
+                return Ok(results);
+            }
+
         }
 
     }

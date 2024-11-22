@@ -16,7 +16,7 @@ namespace LibraryManagement_API.RepositoryPattern.IRepositoryImplementation
             _appDbContext = appDbContext;
         }
 
-        public GetAllDTO<Models.Stream?> Create_Stream(string baseUrl, CreateStreamDTO model)
+        public RestDTO<Models.Stream?> Create_Stream(string baseUrl, CreateStreamDTO model)
         {
 
             // Check if a stream with the same name already exists
@@ -37,7 +37,7 @@ namespace LibraryManagement_API.RepositoryPattern.IRepositoryImplementation
                 _appDbContext.SaveChanges();
             };
 
-            return new GetAllDTO<Models.Stream?>()
+            return new RestDTO<Models.Stream?>()
             {
                 Data = Created_Stream,
 
@@ -49,11 +49,11 @@ namespace LibraryManagement_API.RepositoryPattern.IRepositoryImplementation
 
         }
 
-        public GetAllDTO<Models.Stream[]> GetAll_Stream(string baseUrl)
+        public RestDTO<Models.Stream[]> GetAll_Stream(string baseUrl)
         {
             var query = _appDbContext.Streams;
 
-            return new GetAllDTO<Models.Stream[]>()
+            return new RestDTO<Models.Stream[]>()
             {
                 Data = query.ToArray() ,
 
