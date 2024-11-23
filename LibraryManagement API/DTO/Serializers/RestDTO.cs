@@ -2,7 +2,7 @@
 
 namespace LibraryManagement_API.DTO.Serializers
 {
-    public class GetAllDTO<T>
+    public class RestDTO<T>
     {
         public T Data { get; set; } = default!;
 
