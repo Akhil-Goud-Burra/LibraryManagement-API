@@ -1,7 +1,11 @@
+using LibraryManagement_API.Custom_Error_Responses;
+using LibraryManagement_API.Global_Exception_Middleware.Custom_Middleware;
 using LibraryManagement_API.Models;
 using LibraryManagement_API.RepositoryPattern.IRepository;
 using LibraryManagement_API.RepositoryPattern.IRepositoryImplementation;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Win32;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,24 +19,59 @@ builder.Services.AddDbContext<MyDbContext>(options =>
 builder.Services.AddScoped<IRepositoryStream, IRepositoryStreamImplementation>();
 
 
+// Global Exception Handling : Adding services
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+
+
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    // Global Exception
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+
+    // Global Exception Handling Middleware
+    app.UseExceptionHandler(errorApp =>
+    {
+        errorApp.Run(async context =>
+        {
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+
+            var errorFeature = context.Features.Get<IExceptionHandlerFeature>();
+            var exception = errorFeature?.Error;
+
+            var errorResponse = new ErrorResponse
+            {
+                Message = "An unexpected error occurred.",
+                Detail = app.Environment.IsDevelopment() ? exception?.Message : null, // Show details only in Development
+                TraceId = context.TraceIdentifier // Useful for correlating logs
+            };
+
+            await context.Response.WriteAsJsonAsync(errorResponse);
+        });
+    });
 }
 
+
+//Register the Middleware
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
+
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
