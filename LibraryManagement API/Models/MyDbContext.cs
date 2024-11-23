@@ -10,10 +10,6 @@ public partial class MyDbContext : DbContext
 
     private readonly IConfiguration _configuration;
 
-    public MyDbContext()
-    {
-    }
-
     public MyDbContext(IConfiguration configuration, DbContextOptions<MyDbContext> options)
         : base(options)
     {
