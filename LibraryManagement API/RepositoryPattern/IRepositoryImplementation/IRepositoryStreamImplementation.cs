@@ -1,6 +1,7 @@
 ﻿using Azure.Core;
 using LibraryManagement_API.DTO.DeSerializers;
 using LibraryManagement_API.DTO.Serializers;
+using LibraryManagement_API.Error_Handling.Custom_Exception_Setup;
 using LibraryManagement_API.Models;
 using LibraryManagement_API.RepositoryPattern.IRepository;
 using System;
@@ -51,6 +52,7 @@ namespace LibraryManagement_API.RepositoryPattern.IRepositoryImplementation
 
         public RestDTO<Models.Stream[]> GetAll_Stream(string baseUrl)
         {
+
             var query = _appDbContext.Streams;
 
             return new RestDTO<Models.Stream[]>()
