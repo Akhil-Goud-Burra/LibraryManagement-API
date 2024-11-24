@@ -1,7 +1,7 @@
 ﻿using LibraryManagement_API.Custom_Validators.Stream_Validators;
 using System.ComponentModel.DataAnnotations;
 
-namespace LibraryManagement_API.DTO.DeSerializers
+namespace LibraryManagement_API.DTO.DeSerializers.Stream
 {
     public class CreateStreamDTO
     {

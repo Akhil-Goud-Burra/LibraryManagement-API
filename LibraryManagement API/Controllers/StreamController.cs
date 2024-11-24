@@ -1,4 +1,4 @@
-﻿using LibraryManagement_API.DTO.DeSerializers;
+﻿using LibraryManagement_API.DTO.DeSerializers.Stream;
 using LibraryManagement_API.DTO.Serializers;
 using LibraryManagement_API.Error_Handling.Custom_Exception_Setup;
 using LibraryManagement_API.RepositoryPattern.IRepository;
@@ -27,9 +27,16 @@ namespace LibraryManagement_API.Controllers
         {
             string baseUrl = $"{Request.Scheme}://{Request.Host}";
 
-            var results = _repository.GetAll_Stream(baseUrl);
+            try
+            {
+                var results = _repository.GetAll_Stream(baseUrl);
 
-            return Ok(results);
+                return Ok(results);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
 
@@ -44,11 +51,17 @@ namespace LibraryManagement_API.Controllers
             {
                 string baseUrl = $"{Request.Scheme}://{Request.Host}";
 
-                var results = _repository.Create_Stream(baseUrl, Incomming_Request);
+                try
+                {
+                    var results = _repository.Create_Stream(baseUrl, Incomming_Request);
 
-                return Ok(results);
+                    return Ok(results);
+                }
+                catch(Exception)
+                {
+                    throw new Exception("This is a Generic Exception");
+                }
             }
-
         }
 
     }
