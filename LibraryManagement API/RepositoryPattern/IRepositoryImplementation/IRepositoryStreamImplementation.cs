@@ -1,10 +1,11 @@
 ﻿using Azure.Core;
-using LibraryManagement_API.DTO.DeSerializers;
+using LibraryManagement_API.DTO.DeSerializers.Stream;
 using LibraryManagement_API.DTO.Serializers;
 using LibraryManagement_API.Error_Handling.Custom_Exception_Setup;
 using LibraryManagement_API.Models;
 using LibraryManagement_API.RepositoryPattern.IRepository;
 using System;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace LibraryManagement_API.RepositoryPattern.IRepositoryImplementation
 {
@@ -19,51 +20,74 @@ namespace LibraryManagement_API.RepositoryPattern.IRepositoryImplementation
 
         public RestDTO<Models.Stream?> Create_Stream(string baseUrl, CreateStreamDTO model)
         {
+            // Validating Incomming Request Attributes
+            if (string.IsNullOrWhiteSpace(model.Name))
+            {
+                throw new CustomApiException("BadRequest: Stream name cannot be null or empty.", 400);
+            }
+
+            var Given_Stream_Name = model.Name.ToLower();
 
             // Check if a stream with the same name already exists
-            var Created_Stream = _appDbContext.Streams
-                                    .Where(stream => stream.Name == model.Name)
-                                    .FirstOrDefault();
+            var Created_Stream = _appDbContext.Streams.Any(stream => stream.Name.ToLower() == Given_Stream_Name);
 
-            // Is Stream Not Exists
-            if (Created_Stream == null)
+            if (Created_Stream == false) // If Stream Not Exists
             {
                 // If no stream exists, create a new one
-                Created_Stream = new Models.Stream
+                var New_Stream = new Models.Stream
                 {
-                    Name = model.Name,
+                    Name = Given_Stream_Name,
                 };
 
-                _appDbContext.Streams.Add(Created_Stream);
-                _appDbContext.SaveChanges();
-            };
+                _appDbContext.Streams.Add(New_Stream);
 
-            return new RestDTO<Models.Stream?>()
-            {
-                Data = Created_Stream,
-
-                Links = new List<DTO.Additional_Context.LinkDTO>
-                {
-                    new DTO.Additional_Context.LinkDTO($"{baseUrl}/api/StreamController", "self", "POST"),
+                try 
+                { 
+                    _appDbContext.SaveChanges();  
+                } 
+                catch(Exception) 
+                { 
+                    throw new CustomApiException("BadRequest: Error saving the stream to the database. Please try again later", 400); 
                 }
-            };
 
+                return new RestDTO<Models.Stream?>()
+                {
+                    Data = New_Stream,
+
+                    Links = new List<DTO.Additional_Context.LinkDTO>
+                    {
+                        new DTO.Additional_Context.LinkDTO($"{baseUrl}/api/StreamController", "self", "POST"),
+                    }
+                };
+
+            }
+            else // If Stream Exists
+            {
+                throw new CustomApiException("Conflict: The requested data already exists and cannot be created again.", 409);
+            }
         }
 
         public RestDTO<Models.Stream[]> GetAll_Stream(string baseUrl)
         {
+            // Check if the collection contains any records
+            var Fetch_Data = _appDbContext.Streams.Any();
 
-            var query = _appDbContext.Streams;
-
-            return new RestDTO<Models.Stream[]>()
+            if (Fetch_Data)
             {
-                Data = query.ToArray() ,
-
-                Links = new List<DTO.Additional_Context.LinkDTO>
+                return new RestDTO<Models.Stream[]>()
                 {
-                    new DTO.Additional_Context.LinkDTO($"{baseUrl}/api/StreamController", "self", "GET"),
-                }
-            };
+                    Data = _appDbContext.Streams.ToArray(),
+
+                    Links = new List<DTO.Additional_Context.LinkDTO>
+                    {
+                        new DTO.Additional_Context.LinkDTO($"{baseUrl}/api/StreamController", "self", "GET"),
+                    }
+                };
+            }
+            else
+            {
+                throw new CustomApiException("Success, No Content: The Requested Collection is Empty", 204);
+            }
         }
     }
 }
