@@ -1,4 +1,5 @@
 using LibraryManagement_API.Custom_Error_Responses;
+using LibraryManagement_API.Error_Handling.Custom_Exception_Setup;
 using LibraryManagement_API.Global_Exception_Middleware.Custom_Middleware;
 using LibraryManagement_API.Models;
 using LibraryManagement_API.RepositoryPattern.IRepository;
@@ -23,6 +24,13 @@ builder.Services.AddScoped<IRepositoryStream, IRepositoryStreamImplementation>()
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+//Registering the Filter Globally
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<CustomExceptionFilter>();
+});
+
 
 
 
