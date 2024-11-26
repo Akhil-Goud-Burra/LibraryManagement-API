@@ -8,7 +8,7 @@ namespace LibraryManagement_API.Custom_Validators.Stream_Validators
 
         public StreamNameValidator()
         {
-            _allowedValues = new[] { "cse", "eee", "it", "datasciece"};
+            _allowedValues = new[] { "cse", "eee", "it", "datascience", "ece"};
         }
 
         public override bool IsValid(object? stream_name)

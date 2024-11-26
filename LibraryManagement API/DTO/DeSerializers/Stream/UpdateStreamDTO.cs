@@ -3,8 +3,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LibraryManagement_API.DTO.DeSerializers.Stream
 {
-    public class CreateStreamDTO
+    public class UpdateStreamDTO
     {
+        [Required(ErrorMessage = "Enter the Stream Name")]
+        [Range(0, 100)]
+        public int Id { get; set; }
+
         [Required(ErrorMessage = "Enter the Stream Name")]
         [MinLength(1)]
         [MaxLength(20)]
