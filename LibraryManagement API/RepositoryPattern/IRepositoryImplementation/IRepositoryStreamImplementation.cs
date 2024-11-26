@@ -4,7 +4,11 @@ using LibraryManagement_API.DTO.Serializers;
 using LibraryManagement_API.Error_Handling.Custom_Exception_Setup;
 using LibraryManagement_API.Models;
 using LibraryManagement_API.RepositoryPattern.IRepository;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
+using System.IO;
+using System.Linq;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace LibraryManagement_API.RepositoryPattern.IRepositoryImplementation
@@ -18,6 +22,7 @@ namespace LibraryManagement_API.RepositoryPattern.IRepositoryImplementation
             _appDbContext = appDbContext;
         }
 
+
         public RestDTO<Models.Stream?> Create_Stream(string baseUrl, CreateStreamDTO model)
         {
             // Validating Incomming Request Attributes
@@ -26,10 +31,10 @@ namespace LibraryManagement_API.RepositoryPattern.IRepositoryImplementation
                 throw new CustomApiException("BadRequest: Stream name cannot be null or empty.", 400);
             }
 
-            var Given_Stream_Name = model.Name.ToLower();
+            var Given_Stream_Name = model.Name.Trim().ToLower();
 
             // Check if a stream with the same name already exists
-            var Created_Stream = _appDbContext.Streams.Any(stream => stream.Name.ToLower() == Given_Stream_Name);
+            var Created_Stream = _appDbContext.Streams.Any(stream => stream.Name == Given_Stream_Name);
 
             if (Created_Stream == false) // If Stream Not Exists
             {
@@ -67,6 +72,8 @@ namespace LibraryManagement_API.RepositoryPattern.IRepositoryImplementation
             }
         }
 
+
+
         public RestDTO<Models.Stream[]> GetAll_Stream(string baseUrl)
         {
             // Check if the collection contains any records
@@ -87,6 +94,62 @@ namespace LibraryManagement_API.RepositoryPattern.IRepositoryImplementation
             else
             {
                 throw new CustomApiException("Success, No Content: The Requested Collection is Empty", 204);
+            }
+        }
+
+
+
+        
+
+        public RestDTO<Models.Stream?> Update_Stream(string baseUrl, int id, UpdateStreamDTO model)
+        {
+            if (id != model.Id)
+            {
+                throw new CustomApiException("BadRequest: Provided Id didn't matched", 400);
+            }
+            else if (string.IsNullOrWhiteSpace(model.Name))
+            {
+                throw new CustomApiException("BadRequest: Stream name cannot be null or empty.", 400);
+            }
+            else
+            {
+                // Checking Stream Id Exist in the Databse or Not
+                var Stream_To_Update = _appDbContext.Streams.SingleOrDefault(stream => stream.Id == id );
+                if (Stream_To_Update == null)
+                {
+                    throw new CustomApiException("NotFound: The stream you are trying to update does not exist.", 404);
+                }
+
+                // Checking Stream Name Exist in the Database or Not
+                var Given_Stream_Name = model.Name.Trim().ToLower();
+
+                bool Stream_Name_Existence = _appDbContext.Streams.Any(stream => stream.Name == Given_Stream_Name);
+
+                if (Stream_Name_Existence)
+                {
+                    throw new CustomApiException("BadRequest: The stream you are trying to update already exist.", 400);
+                }
+
+                try
+                {
+                    Stream_To_Update.Name = Given_Stream_Name;
+
+                    _appDbContext.SaveChanges();
+
+                    // Return the updated resource
+                    return new RestDTO<Models.Stream?>()
+                    {
+                        Data = Stream_To_Update,
+                        Links = new List<DTO.Additional_Context.LinkDTO>
+                        {
+                            new DTO.Additional_Context.LinkDTO($"/api/StreamController/{id}", "self", "PUT"),
+                        }
+                    };
+                }
+                catch (DbUpdateException)
+                {
+                    throw new CustomApiException("BadRequest in Update_Stream: Error while updating the stream. Please try again later.", 400);
+                }
             }
         }
     }
