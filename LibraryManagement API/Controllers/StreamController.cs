@@ -91,35 +91,5 @@ namespace LibraryManagement_API.Controllers
             throw new Exception("This is a Generic Exception");
         }
 
-
-
-
-
-        [HttpGet("{Stream_Name}", Name = "Check_StreamName")]
-        public IActionResult Check_StreamName(string Stream_Name)
-        {
-            if (string.IsNullOrEmpty(Stream_Name))
-            {
-                throw new CustomApiException("Stream name cannot be null or empty.", 400);
-            }
-
-            // Case-insensitive comparison
-            bool Stream_Name_Existence = _appDbContext.Streams
-                .Any(stream => stream.Name.ToLower() == Stream_Name.ToLower());
-
-            if (Stream_Name_Existence)
-            {
-                return Ok(new { Message = "Stream name exists.", Exists = true });
-            }
-            else
-            {
-                return NotFound(new { Message = "Stream name does not exist.", Exists = false });
-            }
-        }
-
-
-
-
-
     }
 }
