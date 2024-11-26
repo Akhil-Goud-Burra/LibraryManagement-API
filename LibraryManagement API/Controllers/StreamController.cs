@@ -1,12 +1,14 @@
 ﻿using LibraryManagement_API.DTO.DeSerializers.Stream;
 using LibraryManagement_API.DTO.Serializers;
 using LibraryManagement_API.Error_Handling.Custom_Exception_Setup;
+using LibraryManagement_API.Models;
 using LibraryManagement_API.RepositoryPattern.IRepository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryManagement_API.Controllers
 {
+
     [Route("api/StreamController")]
     [ApiController]
     public class StreamController : ControllerBase
@@ -15,11 +17,15 @@ namespace LibraryManagement_API.Controllers
 
         private IRepositoryStream _repository;
 
-        public StreamController(ILogger<StreamController> logger , IRepositoryStream repository) 
+        private readonly MyDbContext _appDbContext;
+
+        public StreamController(ILogger<StreamController> logger , IRepositoryStream repository, MyDbContext appDbContext) 
         {
             _logger = logger;
             _repository = repository;
+            _appDbContext = appDbContext;
         }
+
 
 
         [HttpGet(Name = "GetStreamNames")]
@@ -38,6 +44,7 @@ namespace LibraryManagement_API.Controllers
                 return BadRequest(e.Message);
             }
         }
+
 
 
         [HttpPost(Name = "CreateStreamName")]
@@ -62,6 +69,26 @@ namespace LibraryManagement_API.Controllers
                     throw new Exception("This is a Generic Exception");
                 }
             }
+        }
+
+
+
+        [HttpPut("{id:int}", Name = "UpdateStreamName")]
+        public IActionResult UpdateStreamName(int id, [FromBody] UpdateStreamDTO Incomming_Request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            else
+            {
+                string baseUrl = $"{Request.Scheme}://{Request.Host}";
+                var results = _repository.Update_Stream(baseUrl, id, Incomming_Request);
+
+                return Ok(results);
+            }
+
+            throw new Exception("This is a Generic Exception");
         }
 
     }
