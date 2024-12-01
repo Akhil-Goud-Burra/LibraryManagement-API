@@ -80,16 +80,43 @@ namespace LibraryManagement_API.Controllers
             {
                 return BadRequest(ModelState);
             }
-            else
+
+            try
             {
                 string baseUrl = $"{Request.Scheme}://{Request.Host}";
                 var results = _repository.Update_Stream(baseUrl, id, Incomming_Request);
 
                 return Ok(results);
             }
-
-            throw new Exception("This is a Generic Exception");
+            catch(Exception)
+            {
+                throw new Exception("This is a Generic Exception");
+            }            
         }
+
+        /*
+        [HttpDelete("{id:int}")]
+        public IActionResult DeleteStreamName(int id , DeleteStreamDTO Incomming_Request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                string baseUrl = $"{Request.Scheme}://{Request.Host}";
+
+                var results = _repository.Delete_Stream(baseUrl, id, Incomming_Request);
+
+                return Ok(results);
+            }
+            catch(Exception)
+            {
+                throw new Exception("This is a Generic Exception");
+            }
+        }
+        */
 
     }
 }
