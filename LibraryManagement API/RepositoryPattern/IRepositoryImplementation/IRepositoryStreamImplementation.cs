@@ -72,8 +72,6 @@ namespace LibraryManagement_API.RepositoryPattern.IRepositoryImplementation
             }
         }
 
-
-
         public RestDTO<Models.Stream[]> GetAll_Stream(string baseUrl)
         {
             // Check if the collection contains any records
