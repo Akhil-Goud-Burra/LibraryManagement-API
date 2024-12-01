@@ -9,5 +9,7 @@ namespace LibraryManagement_API.RepositoryPattern.IRepository
         public RestDTO<Models.Stream[]> GetAll_Stream(String baseUrl);
 
         public RestDTO<Models.Stream?> Create_Stream(String baseUrl , CreateStreamDTO create_stream_dto);
+
+        public RestDTO<Models.Stream?> Create_Stream(String baseUrl, CreateStreamDTO create_stream_dto);
     }
 }
